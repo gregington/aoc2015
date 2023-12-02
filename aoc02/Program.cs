@@ -1,4 +1,5 @@
 ﻿using System.CommandLine;
+using System.Runtime.CompilerServices;
 
 public class Program
 {
@@ -25,50 +26,45 @@ public class Program
 
     private static Task Run(string input, int part)
     {
-        using var fs = File.OpenRead(input);
-        var enumerable = FloorEnumerable(fs);
-
         if (part == 1)
         {
-            return Part1(enumerable);
+            return Part1(input);
         }
         else
         {
-            return Part2(enumerable);
+            return Part2(input);
         }
     }
 
-    private static Task Part1(IEnumerable<int> enumerable)
+    public static Task Part1(string input)
     {
-        var floor = enumerable.Last();
-        Console.WriteLine($"Floor: {floor}");
+        var boxes = File.ReadLinesAsync(input).Select(x => Box.Parse(x));
+        var totalArea = boxes.ToEnumerable().Sum(b => b.WrappingArea);
+        Console.WriteLine($"Total area: {totalArea}");
         return Task.CompletedTask;
     }
 
-    private static Task Part2(IEnumerable<int> enumerable)
+    public static Task Part2(string input)
     {
-        var position = enumerable.Select((f, i) => (floor: f, index: i)).First(t => t.floor == -1).index + 1;
-        Console.WriteLine($"Position: {position}");
         return Task.CompletedTask;
     }
 
-    private static IEnumerable<int> FloorEnumerable(Stream stream)
+    private record Box(int Length, int Width, int Height)
     {
-        int c;
-        var floor = 0;
-        do
+        public static Box Parse(string line)
         {
-            c = stream.ReadByte();
-            switch (c)
+            var parts = line.Split('x');
+            return new Box(int.Parse(parts[0]), int.Parse(parts[1]), int.Parse(parts[2]));
+        }
+
+        public int WrappingArea
+        {
+            get
             {
-                case '(':
-                    floor++;
-                    break;
-                case ')':
-                    floor--;
-                    break;
+                var sides = new[] { Length * Width, Width * Height, Height * Length };
+                return sides.Sum() * 2 + sides.Min();
             }
-            yield return floor;
-        } while (c != -1);
+        }
     }
+
 }
