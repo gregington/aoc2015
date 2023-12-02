@@ -46,6 +46,9 @@ public class Program
 
     public static Task Part2(string input)
     {
+        var boxes = File.ReadLinesAsync(input).Select(x => Box.Parse(x));
+        var totalLength = boxes.ToEnumerable().Sum(b => b.RibbonLength);
+        Console.WriteLine($"Total length: {totalLength}");
         return Task.CompletedTask;
     }
 
@@ -64,6 +67,18 @@ public class Program
                 var sides = new[] { Length * Width, Width * Height, Height * Length };
                 return sides.Sum() * 2 + sides.Min();
             }
+        }
+
+        public int RibbonLength
+        {
+            get
+            {
+                var sides = new[] { Length, Width, Height }.OrderBy(x => x).ToArray();
+                var minPerimeter = sides[0] * 2 + sides[1] * 2;
+                var volume = Length * Width * Height;
+                return minPerimeter + volume;
+            }
+                
         }
     }
 
