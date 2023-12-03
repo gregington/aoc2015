@@ -1,5 +1,4 @@
 ﻿using System.CommandLine;
-using System.Runtime.CompilerServices;
 
 public class Program
 {
