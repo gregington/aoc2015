@@ -40,20 +40,28 @@ public class Program
 
     public static Task Part1(string input)
     {
-        var number = Enumerable.Range(0, int.MaxValue)
-            .Select(x => (Value: x, Input: $"{input}{x}"))
-            .Select(x => (x.Value, Hash: Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(x.Input)))))
-            .First(x => x.Hash.StartsWith("00000")).Value;
-
-        Console.WriteLine(number);
-        
+        FindAdventCoin(input, 5);
         return Task.CompletedTask;
     }
 
     public static Task Part2(string input)
     {
+        FindAdventCoin(input, 6);
         return Task.CompletedTask;
     }
 
+    public static void FindAdventCoin(string input, int numLeadingZeros)
+    {
+        var leadingZeros = new string(Enumerable.Range(0, numLeadingZeros)
+            .Select(_ => '0')
+            .ToArray());
+
+        var number = Enumerable.Range(0, int.MaxValue)
+            .Select(x => (Value: x, Input: $"{input}{x}"))
+            .Select(x => (x.Value, Hash: Convert.ToHexString(MD5.HashData(Encoding.ASCII.GetBytes(x.Input)))))
+            .First(x => x.Hash.StartsWith(leadingZeros)).Value;
+
+        Console.WriteLine(number);
+    }
 
 }
