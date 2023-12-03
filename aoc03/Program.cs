@@ -1,7 +1,4 @@
-﻿using System.Collections;
-using System.CommandLine;
-using System.IO;
-using System.Threading.Tasks;
+﻿using System.CommandLine;
 
 public class Program
 {
@@ -28,41 +25,48 @@ public class Program
 
     private static Task Run(string input, int part)
     {
-        using var fs = File.OpenRead(input);
-        var positions = Positions(fs);        
 
         if (part == 1)
         {
-            return Part1(positions);
+            return Part1(input);
         }
         else
         {
-            return Part2(positions);
+            return Part2(input);
         }
     }
 
-    public static Task Part1(IEnumerable<Position> positions)
+    public static Task Part1(string input)
     {
+        var positions = Positions(File.ReadAllLines(input)[0]);        
         var uniqueHouses = positions.Distinct().Count();
         Console.WriteLine($"Unique houses: {uniqueHouses}");
         return Task.CompletedTask;
     }
 
-    public static Task Part2(IEnumerable<Position> positions)
+    public static Task Part2(string input)
     {
+        var directions = File.ReadAllLines(input)[0].ToArray();
+        var santaDirections = directions.Where((_, i) => i % 2 == 0);
+        var roboSantaDirections = directions.Where((_, i) => i % 2 == 1);
+
+        var santaPositions = Positions(santaDirections);
+        var roboSantaPositions = Positions(roboSantaDirections);
+
+        var uniqueHouses = santaPositions.Concat(roboSantaPositions).Distinct().Count();
+        Console.WriteLine($"Unique houses: {uniqueHouses}");
+
         return Task.CompletedTask;
     }
 
-    private static IEnumerable<Position> Positions(Stream stream)
+    private static IEnumerable<Position> Positions(IEnumerable<char> directions)
     {
-        int c;
-        int x = 0, y = 0;
-        do 
+        var x = 0;
+        var y = 0;
+        yield return new Position(x, y);
+        foreach (var direction in directions)
         {
-            var position = new Position(x, y);
-            yield return position;
-            c = stream.ReadByte();
-            switch (c)
+            switch (direction)
             {
                 case '^':
                     y++;
@@ -77,8 +81,8 @@ public class Program
                     x--;
                     break;
             }
-
-        } while (c != -1);
+            yield return new Position(x, y);
+        }
     }
 
     public record Position(int X, int Y);
