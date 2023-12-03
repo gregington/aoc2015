@@ -38,13 +38,13 @@ public partial class Program
 
     public static Task Part1(string input)
     {
-        var grid = CreateGrid();
+        var grid = CreateBoolGrid();
         var lines = File.ReadLinesAsync(input);
         var instructions = lines.Select(x => Instruction.Parse(x)).ToEnumerable();
 
         foreach (var instruction in instructions)
         {
-            instruction.Apply(grid);
+            instruction.ApplyBool(grid);
         }
 
         var turnedOn = grid.Select(x => x.Count(y => y)).Sum();
@@ -55,15 +55,38 @@ public partial class Program
 
     public static Task Part2(string input)
     {
+        var grid = CreateIntGrid();
+        var lines = File.ReadLinesAsync(input);
+        var instructions = lines.Select(x => Instruction.Parse(x)).ToEnumerable();
+
+        foreach (var instruction in instructions)
+        {
+            instruction.ApplyInt(grid);
+        }
+
+        var brightness = grid.Select(x => x.Sum()).Sum();
+        Console.WriteLine($"Total brightness: {brightness}");
+
         return Task.CompletedTask;
     }
 
-    private static bool[][] CreateGrid()
+    private static bool[][] CreateBoolGrid()
     {
         var grid = new bool[1000][];
         for (var i = 0; i < 1000; i++)
         {
             grid[i] = new bool[1000];
+        }
+
+        return grid;
+    }
+
+    private static int[][] CreateIntGrid()
+    {
+        var grid = new int[1000][];
+        for (var i = 0; i < 1000; i++)
+        {
+            grid[i] = new int[1000];
         }
 
         return grid;
@@ -107,7 +130,7 @@ public partial class Program
             return new Instruction(operation, start, end);
         }
 
-        public void Apply(bool[][] grid)
+        public void ApplyBool(bool[][] grid)
         {
             var startX = Math.Min(Start.X, End.X);
             var endX = Math.Max(Start.X, End.X);
@@ -129,6 +152,36 @@ public partial class Program
                             break;
                         case Operation.Toggle:
                             grid[x][y] = !grid[x][y];
+                            break;
+                        default:
+                            throw new ArgumentException($"Invalid operation: {Operation}", nameof(Operation));
+                    }
+                }
+            }
+        }
+
+        public void ApplyInt(int[][] grid)
+        {
+            var startX = Math.Min(Start.X, End.X);
+            var endX = Math.Max(Start.X, End.X);
+
+            var startY = Math.Min(Start.Y, End.Y);
+            var endY = Math.Max(Start.Y, End.Y);
+
+            for (var x = startX; x <= endX; x++)
+            {
+                for (var y = startY; y <= endY; y++)
+                {
+                    switch (Operation)
+                    {
+                        case Operation.TurnOn:
+                            grid[x][y]++;
+                            break;
+                        case Operation.TurnOff:
+                            grid[x][y] = Math.Max(0, grid[x][y] - 1);
+                            break;
+                        case Operation.Toggle:
+                            grid[x][y] += 2;
                             break;
                         default:
                             throw new ArgumentException($"Invalid operation: {Operation}", nameof(Operation));
