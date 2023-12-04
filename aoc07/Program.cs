@@ -39,39 +39,59 @@ public partial class Program
         await task;
     }
 
-    public static Task Part1(Dictionary<string, ushort?>wires, List<Gate> gates)
+    public static Task Part1(Dictionary<string, ushort?> wires, List<Gate> gates)
     {
-        while (wires.Any(x => x.Value == null))
+        var result = Evaluate(wires, gates);
+
+        foreach (var wire in result.Keys.Order())
         {
-            foreach (var gate in gates)
-            {
-                // If any of the gate's inputs are unknown, skip
-                if (gate.Inputs.Any(x => wires[x] == null))
-                {
-                    continue;
-                }
-
-                // If the gate's output is already known, skip
-                if (wires[gate.Output] != null)
-                {
-                    continue;
-                }
-
-                var value = gate.Evaluate(wires);
-                wires[gate.Output] = value;
-            }
-        }
-
-        foreach (var wire in wires.Keys.Order())
-        {
-            Console.WriteLine($"{wire} -> {wires[wire]}");
+            Console.WriteLine($"{wire} -> {result[wire]}");
         }
         return Task.CompletedTask;
     }
 
     public static Task Part2(Dictionary<string, ushort?> wires, List<Gate> gates)
     {
+        var result = Evaluate(wires, gates);
+
+        var newWires = new Dictionary<string, ushort?>(wires);
+        newWires["b"] = result["a"];
+
+        var newResult = Evaluate(newWires, gates);
+
+        foreach (var wire in newResult.Keys.Order())
+        {
+            Console.WriteLine($"{wire} -> {newResult[wire]}");
+        }
         return Task.CompletedTask;
+    }
+
+    private static IReadOnlyDictionary<string, ushort?> Evaluate(IReadOnlyDictionary<string, ushort?> wires, List<Gate> gates)
+    {
+        var result = new Dictionary<string, ushort?>(wires);
+
+        while (result.Any(x => x.Value == null))
+        {
+            foreach (var gate in gates)
+            {
+                // If any of the gate's inputs are unknown, skip
+                if (gate.Inputs.Any(x => result[x] == null))
+                {
+                    continue;
+                }
+
+                // If the gate's output is already known, skip
+                if (result[gate.Output] != null)
+                {
+                    continue;
+                }
+
+                var value = gate.Evaluate(result);
+                result[gate.Output] = value;
+            }
+        }
+
+        return result;
     }
 
     private static async Task<(Dictionary<string, ushort?> Wires, List<Gate> Gates)> Parse(string input)
