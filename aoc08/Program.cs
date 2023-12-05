@@ -1,4 +1,6 @@
 ﻿using System.CommandLine;
+using System.ComponentModel.DataAnnotations;
+using System.Text;
 
 public partial class Program
 {
@@ -51,6 +53,14 @@ public partial class Program
 
     public static Task Part2(IAsyncEnumerable<string> lines)
     {
+        var lengths = lines
+            .Select(line => (Line: line, Encoded: Encode(line)))
+            .Select(x => (Length: x.Line.Length, EncodedLength: x.Encoded.Length));
+
+        var differences = lengths
+            .Select(x => x.EncodedLength - x.Length);
+
+        Console.WriteLine(differences.ToEnumerable().Sum());
         return Task.CompletedTask;
     }
 
@@ -97,6 +107,24 @@ public partial class Program
             i++;
         }
         return  chars.Count;
+    }
+
+    private static string Encode(string input)
+    {
+        var output = new StringBuilder();
+        output.Append('"');
+
+        foreach (var c in input.ToCharArray())
+        {
+            if (c == '"' || c == '\\') {
+                output.Append('\\');
+            }
+            output.Append(c);
+        }
+
+        output.Append('"');
+
+        return output.ToString();
     }
 
 }
