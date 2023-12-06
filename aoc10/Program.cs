@@ -49,6 +49,11 @@ public class Program
 
     public static Task Part2(string input)
     {
+        for (var i = 0; i < 50; i++)
+        {
+            input = Expand(input);
+        }
+        Console.WriteLine(input.Length);
         return Task.CompletedTask;
     }
 
