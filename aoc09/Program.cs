@@ -33,7 +33,7 @@ public partial class Program
         var task = part switch
         {
             1 => Part1(nodes, costs),
-            2 => Part2(),
+            2 => Part2(nodes, costs),
             _ => throw new ArgumentException($"Invalid part: {part}", nameof(part))
         };
 
@@ -42,22 +42,26 @@ public partial class Program
 
     public static Task Part1(string[] nodes, int[][] costs)
     {
-        var solution = Bfs(costs);
+        var solution = Bfs(costs, OptimisationType.Shortest);
         var stringPath = string.Join(" -> ", solution.Visited.Select(v => nodes[v]));
         Console.WriteLine($"{solution.Cost}: {stringPath}");
 
         return Task.CompletedTask;
     }
 
-    public static Task Part2()
+    public static Task Part2(string[] nodes, int[][] costs)
     {
+        var solution = Bfs(costs, OptimisationType.Longest);
+        var stringPath = string.Join(" -> ", solution.Visited.Select(v => nodes[v]));
+        Console.WriteLine($"{solution.Cost}: {stringPath}");
+
         return Task.CompletedTask;
     }
 
-    private static Path Bfs(int[][] costs)
+    private static Path Bfs(int[][] costs, OptimisationType optimisation)
     {
         var nodes = Enumerable.Range(0, costs.Length).ToArray();
-        var solution = new Path(int.MaxValue, []);
+        var solution = new Path(optimisation == OptimisationType.Shortest ? int.MaxValue : int.MinValue, []);
         var initialPaths = Enumerable.Range(0, nodes.Length).Select(x => new Path(0, [x]));
         var queue = new Queue<Path>(initialPaths);
 
@@ -66,7 +70,7 @@ public partial class Program
             var path = queue.Dequeue();
             if (path.Visited.Length == nodes.Length)
             {
-                if (path.Cost < solution.Cost)
+                if (optimisation == OptimisationType.Shortest ? path.Cost < solution.Cost : path.Cost > solution.Cost)
                 {
                     solution = path;
                 }
@@ -86,7 +90,7 @@ public partial class Program
 
                     return new Path(newCost, newVisited);
                 })
-                .Where(p => p.Cost < solution.Cost);
+                .Where(p => optimisation == OptimisationType.Shortest ? p.Cost < solution.Cost : p.Cost > solution.Cost);
 
             foreach (var newPath in nextPaths)
             {
@@ -137,3 +141,9 @@ public partial class Program
 public record Edge(string From, string To, int Cost);
 
 public record Path(int Cost, int[] Visited);
+
+public enum OptimisationType
+{
+    Shortest,
+    Longest
+}
