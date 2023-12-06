@@ -1,7 +1,4 @@
 ﻿using System.CommandLine;
-using System.Globalization;
-using System.Numerics;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 public partial class Program
