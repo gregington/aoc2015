@@ -49,6 +49,8 @@ public class Program
 
     public static Task Part2(Password password)
     {
+        Console.WriteLine(password.NextValid().NextValid());
+
         return Task.CompletedTask;
     }
 
