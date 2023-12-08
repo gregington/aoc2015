@@ -42,32 +42,45 @@ public class Program
 
     public static Task Part1(JsonNode root)
     {
-        Console.WriteLine(SumNumbers(root));
+        Console.WriteLine(SumNumbersExcludingObjectWithValue(root));
         return Task.CompletedTask;
     }
 
     public static Task Part2(JsonNode root)
     {
+        Console.WriteLine(SumNumbersExcludingObjectWithValue(root, "red"));
         return Task.CompletedTask;
     }
 
-    public static long SumNumbers(JsonNode node)
+    public static long SumNumbersExcludingObjectWithValue(JsonNode node, string? value = null)
     {
         if (node is JsonArray)
         {
             var jsonArray = node.AsArray();
             return jsonArray
                 .Where(item => item != null)
-                .Select(item => SumNumbers(item!)).Sum();
+                .Select(item => SumNumbersExcludingObjectWithValue(item!, value)).Sum();
             
         }
         else if (node is JsonObject)
         {
             var jsonObject = node.AsObject();
+
+            var anyRedValues = jsonObject
+                .Select(kvp => kvp.Value)
+                .Where(item => item != null)
+                .Where(item => item!.GetValueKind() == JsonValueKind.String)
+                .Any(item => (string)item! == value);
+
+            if (anyRedValues)
+            {
+                return 0;
+            }
+
             return jsonObject
                 .Select(kvp => kvp.Value)
                 .Where(item => item != null)
-                .Select(item => SumNumbers(item!))
+                .Select(item => SumNumbersExcludingObjectWithValue(item!, value))
                 .Sum();
         }
         else if (node is JsonValue)
