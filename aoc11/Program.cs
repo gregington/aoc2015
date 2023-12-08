@@ -1,7 +1,4 @@
 ﻿using System.CommandLine;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
-using System.Text;
 
 public class Program
 {
