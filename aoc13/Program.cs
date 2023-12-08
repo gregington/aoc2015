@@ -52,6 +52,20 @@ public partial class Program
 
     public static Task Part2(string[] people, int[][] matrix)
     {
+        var newPeople = people.ToList().Append("Me").ToArray();
+
+        var newMatrix = matrix
+            .ToList()
+            .Select(row => row.ToList().Append(0).ToArray())
+            .Append(Enumerable.Range(0, newPeople.Length).Select(_ => 0).ToArray())
+            .ToArray();
+
+        var permutations = Permute(Enumerable.Range(0, newPeople.Length).ToArray());
+        var scores = permutations.Select(p => (Seating: p, Score: Score(p, newMatrix)));
+
+        Console.WriteLine(scores.Select(s => s.Score).Max());
+
+
         return Task.CompletedTask;
     }
 
