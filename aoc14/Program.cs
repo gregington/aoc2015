@@ -42,7 +42,7 @@ public partial class Program
     {
         var distances = reindeer.Values.Select(e =>
         {
-            for (int i = 0; i < 2503; i++)
+            for (var i = 0; i < 2503; i++)
             {
                 e.MoveNext();
             }
@@ -55,6 +55,24 @@ public partial class Program
 
     public static Task Part2(IDictionary<string, IEnumerator<int>> reindeer)
     {
+        var scores = reindeer.ToDictionary(kvp => kvp.Key, _ => 0);
+        for (var i = 0 ; i < 2503; i++)
+        {
+            var distances = reindeer.ToDictionary(
+                kvp => kvp.Key,
+                kvp => 
+                {
+                    var enumerator = kvp.Value;
+                    enumerator.MoveNext();
+                    return enumerator.Current;
+                }
+            );
+
+            var inLead = distances.MaxBy(kvp => kvp.Value);
+            scores[inLead.Key] += 1;
+        }
+
+        Console.WriteLine(scores.Values.Max());
         return Task.CompletedTask;
     }
 
