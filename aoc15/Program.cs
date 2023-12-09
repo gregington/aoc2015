@@ -44,11 +44,8 @@ public partial class Program
     public static Task Part1(List<Ingredient> ingredients)
     {
         var combinations = Combinations(ingredients.Count - 1, 100);
-
         var scores = combinations.Select(combination => (combination, Score(ingredients, combination)));
-
         var maxScore = scores.MaxBy(s => s.Item2);
-
 
         Console.WriteLine($"[{string.Join(", ", maxScore.Item1)}]: {maxScore.Item2}");
 
@@ -57,6 +54,16 @@ public partial class Program
 
     public static Task Part2(List<Ingredient> ingredients)
     {
+        var combinations = Combinations(ingredients.Count - 1, 100)
+            .Where(combination => Enumerable.Range(0, ingredients.Count)
+                    .Select(i => ingredients[i].Calories * combination[i])
+                    .Sum() == 500);
+
+        var scores = combinations.Select(combination => (combination, Score(ingredients, combination)));
+        var maxScore = scores.MaxBy(s => s.Item2);
+
+        Console.WriteLine($"[{string.Join(", ", maxScore.Item1)}]: {maxScore.Item2}");
+
         return Task.CompletedTask;
     }
 
