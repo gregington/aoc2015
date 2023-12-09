@@ -1,4 +1,5 @@
-﻿using System.Collections.Immutable;
+﻿using System.Collections.Concurrent;
+using System.Collections.Immutable;
 using System.CommandLine;
 using System.CommandLine.Parsing;
 
@@ -32,7 +33,7 @@ public class Program
         var task = part switch
         {
             1 => Part1(containers),
-            2 => Part2(),
+            2 => Part2(containers),
             _ => throw new ArgumentException($"Invalid part: {part}", nameof(part))
         };
 
@@ -47,8 +48,13 @@ public class Program
         return Task.CompletedTask;
     }
 
-    public static Task Part2()
+    public static Task Part2(ImmutableArray<int> containers)
     {
+        var fills = Fill(containers, 150);
+
+        var min = fills.Select(c => c.Containers.Length).Min();
+        Console.WriteLine(fills.Where(c => c.Containers.Length == min).Count());
+
         return Task.CompletedTask;
     }
 
@@ -67,6 +73,16 @@ public class Program
         if (!unfilled.Any(x => x.Capacity <= toFill))
         {
             return [];
+        }
+
+        if (filled.Count == 0)
+        {
+            var bag = new ConcurrentBag<IEnumerable<Solution>>();
+            Parallel.ForEach(unfilled, container =>
+            {
+                bag.Add(Fill(unfilled.Remove(container), filled.Add(container), toFill - container.Capacity));
+            });
+            return bag.SelectMany(x => x).ToImmutableArray();
         }
 
         return unfilled
