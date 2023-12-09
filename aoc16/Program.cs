@@ -1,8 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Immutable;
-using System.CommandLine;
+﻿using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 
 public partial class Program
@@ -34,7 +31,7 @@ public partial class Program
         var task = part switch
         {
             1 => Part1(sues),
-            2 => Part2(),
+            2 => Part2(sues),
             _ => throw new ArgumentException($"Invalid part: {part}", nameof(part))
         };
 
@@ -63,12 +60,32 @@ public partial class Program
         return Task.CompletedTask;
     }
 
-    public static Task Part2()
+    public static Task Part2(IEnumerable<Sue> sues)
     {
+        var matches = sues
+            .Where(sue => NullOrEqual(sue["children"], 3))
+            .Where(sue => NullOrGreaterThan(sue["cats"], 7))
+            .Where(sue => NullOrEqual(sue["samoyeds"], 2))
+            .Where(sue => NullOrLessThan(sue["pomeranians"], 3))
+            .Where(sue => NullOrEqual(sue["akitas"], 0))
+            .Where(sue => NullOrEqual(sue["vizslas"], 0))
+            .Where(sue => NullOrLessThan(sue["goldfish"], 5))
+            .Where(sue => NullOrGreaterThan(sue["trees"], 3))
+            .Where(sue => NullOrEqual(sue["cars"], 2))
+            .Where(sue => NullOrEqual(sue["perfumes"], 1));
+
+        foreach (var match in matches)
+        {
+            Console.WriteLine(match);
+        }
         return Task.CompletedTask;
     }
 
     private static bool NullOrEqual(int? value, int expected) => value == null || value == expected; 
+
+    private static bool NullOrGreaterThan(int? value, int greaterThan) => value == null || value > greaterThan;
+
+    private static bool NullOrLessThan(int? value, int lessThan) => value == null || value < lessThan;
 
     private static async Task<List<Sue>> Parse(string input)
     {
