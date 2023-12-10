@@ -2,7 +2,6 @@
 using System.Collections.Immutable;
 using System.CommandLine;
 using System.CommandLine.Parsing;
-using System.Runtime.InteropServices;
 
 public class Program
 {
@@ -51,8 +50,37 @@ public class Program
         return Task.CompletedTask;
     }
 
-    public static Task Part2(FrozenDictionary<string, ImmutableArray<string>> replacements, string molecule)
+    public static Task Part2(FrozenDictionary<string, ImmutableArray<string>> replacements, string target)
     {
+        var reverseReplacements = replacements.SelectMany(kvp => kvp.Value.Select(x => (Replacement: x, Source: kvp.Key)))
+            .OrderBy(x => x.Replacement.Length)
+            .Reverse();
+
+        var count = 0;
+        var molecule = target;
+
+        while (molecule != "e")
+        {
+            var replaced = false;
+            foreach (var (replacement, source) in reverseReplacements)
+            {
+                var index = molecule.IndexOf(replacement);
+                if (index != -1)
+                {
+                    molecule = string.Concat(molecule.AsSpan(0, index), source, molecule.AsSpan(index + replacement.Length));
+                    replaced = true;
+                    break;
+                }
+            }
+            count++;
+            if (!replaced)
+            {
+                throw new Exception("No replacement found");
+            }
+        }
+
+        Console.WriteLine(count);
+
         return Task.CompletedTask;
     }
 
@@ -107,3 +135,5 @@ public class Program
         throw new Exception("Could not parse input");
     }
 }
+
+public record Candidate(string Molecule, int steps);
