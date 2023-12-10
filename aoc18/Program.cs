@@ -54,7 +54,28 @@ public class Program
 
     public static Task Part2(bool[][] grid)
     {
+        TurnOnCorners(grid);
+        for (var i = 0; i < 100; i++)
+        {
+            grid = UpdateGrid(grid);
+            TurnOnCorners(grid);
+        }
+
+        var lightsOn = grid.Sum(row => row.Where(x => x).Count());
+        Console.WriteLine(lightsOn);
+
         return Task.CompletedTask;
+    }
+
+    private static void TurnOnCorners(bool[][] grid)
+    {
+        var maxRow = grid.Length - 1;
+        var maxCol = grid[0].Length - 1;
+
+        grid[0][0] = true;
+        grid[0][maxCol] = true;
+        grid[maxRow][0] = true;
+        grid[maxRow][maxRow] = true;
     }
 
     private static bool[][] UpdateGrid(bool[][] grid)
