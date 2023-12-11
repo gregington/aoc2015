@@ -42,20 +42,48 @@ public class Program
 
     public static Task Part2(int input)
     {
+        FindHouseMaxDeliveries(11, 50, input);
         return Task.CompletedTask;
     }
 
 
     private static int FindHouse(int presentsPerElf, int limit)
     {
-        var presentCounts = new Dictionary<int, long>();
         var maxPresents = 0;
 
         var houseNumber = 0;
         while (true)
         {
-            houseNumber++;
+            // increment by 10 as we seem to get new highs at multiples of 10.
+            houseNumber += 10;
             var elves = Enumerable.Range(1, houseNumber).Where(x => houseNumber % x == 0);
+            var presents = elves.Sum() * presentsPerElf;
+
+            if (presents > maxPresents)
+            {
+                maxPresents = presents;
+                Console.WriteLine($"House {houseNumber:0,0} got {presents:0,0} presents.");
+            }
+
+            if (presents >= limit)
+            {
+                return houseNumber;
+            }
+        }
+    }
+
+    private static int FindHouseMaxDeliveries(int presentsPerElf, int deliveryLimit, int limit)
+    {
+        var maxPresents = 0;
+
+        var houseNumber = 0;
+        while (true)
+        {
+            // increment by 10 as we seem to get new highs at multiples of 10.
+            houseNumber += 10;
+            var elves = Enumerable.Range(1, houseNumber)
+                .Where(x => houseNumber % x == 0)
+                .Where(x => houseNumber <= x * 50);
             var presents = elves.Sum() * presentsPerElf;
 
             if (presents > maxPresents)
