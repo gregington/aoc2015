@@ -42,7 +42,7 @@ public partial class Program
         var task = part switch
         {
             1 => Part1(equipment, boss),
-            2 => Part2(),
+            2 => Part2(equipment, boss),
             _ => throw new ArgumentException($"Invalid part: {part}", nameof(part))
         };
 
@@ -69,8 +69,24 @@ public partial class Program
         return Task.CompletedTask;
     }
 
-    public static Task Part2()
+    public static Task Part2(FrozenDictionary<string, ImmutableArray<Equipment>> equipment, Player boss)
     {
+        var playerHitPoints = 100;
+        var equipmentChoices = EquipmentCombinations(equipment);
+
+        var players = equipmentChoices
+            .Select(equipment =>
+                (Cost: equipment.Select(e => e.Cost).Sum(), 
+                    Player: new Player(playerHitPoints, equipment.Select(e => e.Damage).Sum(), equipment.Select(e => e.Armor).Sum()),
+                    Equipment: equipment))
+            .OrderBy(x => x.Cost)
+            .Reverse();
+
+        var (cost, outcome, eq) = players.Select(x => (x.Cost, Outcome: Fight(x.Player, boss), x.Equipment))
+            .First(x => !x.Outcome);
+
+        Console.WriteLine($"{cost} {string.Join(", ", eq.Select(e => e.Name))}");
+
         return Task.CompletedTask;
     }
 
