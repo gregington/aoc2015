@@ -48,6 +48,8 @@ public partial class Program
 
     public static Task Part2(ImmutableArray<long> packageMasses)
     {
+        Console.WriteLine(MinQuantumEntanglement(packageMasses, 4));
+
         return Task.CompletedTask;
     }
 
