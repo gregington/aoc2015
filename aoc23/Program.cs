@@ -35,7 +35,7 @@ public partial class Program
         var task = part switch
         {
             1 => Part1(instructions),
-            2 => Part2(),
+            2 => Part2(instructions),
             _ => throw new ArgumentException($"Invalid part: {part}", nameof(part))
         };
 
@@ -51,8 +51,12 @@ public partial class Program
         return Task.CompletedTask;
     }
 
-    public static Task Part2()
+    public static Task Part2(ImmutableArray<Instruction> instructions)
     {
+        var computer = new Computer(instructions, 0, 1, 0);
+        computer = computer.Execute();
+        Console.WriteLine(computer);
+
         return Task.CompletedTask;
     }
 
