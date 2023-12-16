@@ -60,16 +60,19 @@ public partial class Program
         var minMana = Fight(player, boss); 
         Console.WriteLine(minMana);
 
-        // Console.WriteLine(minManaUsed);
         return Task.CompletedTask;
     }
 
     public static Task Part2(Boss boss)
     {
+        var player = new Player(50, 500, 0, 0, 0, 0);
+        var minMana = Fight(player, boss, true); 
+        Console.WriteLine(minMana);
+
         return Task.CompletedTask;
     }
 
-    public static int Fight(Player player, Boss boss)
+    public static int Fight(Player player, Boss boss, bool playerLosesHp = false)
     {
         var minManaUsed = int.MaxValue;
         var stack = new Stack<World>();
@@ -81,6 +84,15 @@ public partial class Program
             var world = stack.Pop();
 
             // Player turn
+            if (playerLosesHp)
+            {
+                world = world with { Player = world.Player with { HitPoints = world.Player.HitPoints - 1 } };
+                if (world.IsBossWin)
+                {
+                    continue;
+                }
+            }
+
             world = world.ApplyEffects();
             if (world.IsPlayerWin)
             {
